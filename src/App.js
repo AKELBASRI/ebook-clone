@@ -6,6 +6,7 @@ import Header from "./components/Header/Header";
 import Login from "./components/Login/Login";
 import { auth } from "./firebase";
 import { useStateValue } from "./StateProvider";
+import Checkout from "./components/Checkout/Checkout";
 function App() {
   const [{ basket, user }, dispatch] = useStateValue();
 
@@ -37,6 +38,9 @@ function App() {
         <Switch>
           <Route path="/login">
             <Login />
+          </Route>
+          <Route path="/checkout">
+            <Checkout />
           </Route>
           <Route path="/">
             <Header />
