@@ -1,20 +1,42 @@
-import React from "react";
+import React, { useState } from "react";
 import "./Header.css";
 import SearchIcon from "@material-ui/icons/Search";
 import ShoppingBasketIcon from "@material-ui/icons/ShoppingBasket";
+import CategorySelect from "./CategorySelect";
 import { Link } from "react-router-dom";
 import { useStateValue } from "../../StateProvider";
 import { auth } from "../../firebase";
 
 function Header() {
-  const [{ basket, user }, dispatch] = useStateValue();
+  const [categoryid, setcategoryid] = useState(0);
+  const [searchitem, setSearchitem] = useState("");
+  const [{ basket, user, listofproducts }, dispatch] = useStateValue();
 
   const handleAuthenticaton = () => {
     if (user) {
       auth.signOut();
     }
   };
-
+  const handleCategoryid = (item) => {
+    setcategoryid(item);
+  };
+  const handleSearch = (titlesearch) => {
+    setSearchitem(titlesearch.target.value);
+  };
+  const search = () => {
+    console.log(categoryid);
+    // let newlistofproduct = listofproducts.filter(
+    //   (item) => item.categoryid == categoryid
+    // );
+    dispatch({
+      type: "categoryselected",
+      item: categoryid,
+    });
+    dispatch({
+      type: "searchtitle",
+      item: searchitem,
+    });
+  };
   return (
     <div className="header">
       <Link to="/">
@@ -22,8 +44,13 @@ function Header() {
       </Link>
 
       <div className="header__search">
-        <input className="header__searchInput" type="text" />
-        <SearchIcon className="header__searchIcon" />
+        <CategorySelect handleCategoryid={handleCategoryid} />
+        <input
+          className="header__searchInput"
+          type="text"
+          onChange={handleSearch}
+        />
+        <SearchIcon className="header__searchIcon" onClick={search} />
       </div>
 
       <div className="header__nav">

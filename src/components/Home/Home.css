@@ -11,14 +11,17 @@
   margin-bottom: -150px;
   mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
 }
-.home__row {
+/* .home__row {
   display: flex;
   z-index: 1;
   margin-left: 5px;
   margin-right: 5px;
-}
-/* .home__row {
-  display: grid;
-  grid-gap: 20px;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
 } */
+.home__row {
+  display: grid;
+  /* grid-gap: 20px; */
+  column-gap: 100px;
+  /* margin-top: 44px; */
+  row-gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+}

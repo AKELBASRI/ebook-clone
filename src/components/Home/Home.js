@@ -2,22 +2,55 @@ import React, { useState, useEffect } from "react";
 import Product from "../Product/Products";
 import "./Home.css";
 import { useStateValue } from "../../StateProvider";
+
 import { db, auth } from "../../firebase";
-import zIndex from "@material-ui/core/styles/zIndex";
+
 function Home() {
-  const [products, setProducts] = useState([]);
-  const [isloaded, setisloaded] = useState(false);
-  const fetchproducts = () => {
-    const response = db.collection("Products");
-    response.get().then((item1) =>
-      item1.docs.forEach((item) => {
-        setProducts([...products, item.data()]);
-      })
-    );
+  const [
+    { basket, user, listofproducts, categoryselected, searchtitle },
+    dispatch,
+  ] = useStateValue();
+
+  const onDataChange = (items) => {
+    let products = [];
+
+    items.docs.forEach((item) => {
+      let id = item.id;
+      let data = item.data();
+      products.push({
+        id: id,
+        title: data.title,
+        price: data.price,
+        rating: data.rating,
+        image: data.image,
+        categoryid: data.idcategory.id,
+      });
+    });
+
+    // dispatch the item into the data layer
+    dispatch({
+      type: "List_PRODUCT",
+      item: products,
+    });
   };
+  const listofproductfilter =
+    categoryselected == 0
+      ? listofproducts.filter((item) =>
+          item.title.toLowerCase().includes(searchtitle.trim().toLowerCase())
+        )
+      : listofproducts.filter(
+          (item) =>
+            item.categoryid === categoryselected &&
+            item.title.toLowerCase().includes(searchtitle.trim().toLowerCase())
+        );
   useEffect(() => {
-    fetchproducts();
-  }, [setProducts]);
+    const unsubscribe = db
+      .collection("Products")
+      .orderBy("title", "asc")
+      .onSnapshot(onDataChange);
+
+    return () => unsubscribe();
+  }, []);
   return (
     <div className="home">
       <div className="home__container">
@@ -27,62 +60,11 @@ function Home() {
           alt="homeimage"
         />
 
-        {/* <div className="home__row">
-          <Product
-            id="12321341"
-            title="The Lean Startup: How Constant Innovation Creates Radically Successful Businesses Paperback"
-            price={11.96}
-            rating={5}
-            image="https://images-na.ssl-images-amazon.com/images/I/51Zymoq7UnL._SX325_BO1,204,203,200_.jpg"
-          />
-          <Product
-            id="49538094"
-            title="Kenwood kMix Stand Mixer for Baking, Stylish Kitchen Mixer with K-beater, Dough Hook and Whisk, 5 Litre Glass Bowl"
-            price={239.0}
-            rating={4}
-            image="https://images-na.ssl-images-amazon.com/images/I/81O%2BGNdkzKL._AC_SX450_.jpg"
-          />
-        </div> */}
-        {/* 
         <div className="home__row">
-          <Product
-            id="4903850"
-            title="Samsung LC49RG90SSUXEN 49' Curved LED Gaming Monitor"
-            price={199.99}
-            rating={3}
-            image="https://images-na.ssl-images-amazon.com/images/I/71Swqqe7XAL._AC_SX466_.jpg"
-          />
-          <Product
-            id="23445930"
-            title="Amazon Echo (3rd generation) | Smart speaker with Alexa, Charcoal Fabric"
-            price={98.99}
-            rating={5}
-            image="https://media.very.co.uk/i/very/P6LTG_SQ1_0000000071_CHARCOAL_SLf?$300x400_retinamobilex2$"
-          />
-          <Product
-            id="3254354345"
-            title="New Apple iPad Pro (12.9-inch, Wi-Fi, 128GB) - Silver (4th Generation)"
-            price={598.99}
-            rating={4}
-            image="https://images-na.ssl-images-amazon.com/images/I/816ctt5WV5L._AC_SX385_.jpg"
-          />
-        </div>
-
-        <div className="home__row">
-          <Product
-            id="90829332"
-            title="Samsung LC49RG90SSUXEN 49' Curved LED Gaming Monitor - Super Ultra Wide Dual WQHD 5120 x 1440"
-            price={1094.98}
-            rating={4}
-            image="https://images-na.ssl-images-amazon.com/images/I/6125mFrzr6L._AC_SX355_.jpg"
-          />
-        </div> */}
-
-        <div className="home__row">
-          {products.map((item1, index) => {
+          {listofproductfilter?.map((item1, index) => {
             return (
               <Product
-                key={index}
+                key={item1.id}
                 title={item1.title}
                 price={item1.price}
                 rating={item1.rating}
@@ -91,38 +73,6 @@ function Home() {
             );
           })}
         </div>
-
-        {/* <Product
-            id="4903850"
-            title="Samsung LC49RG90SSUXEN 49' Curved LED Gaming Monitor"
-            price={199.99}
-            rating={3}
-            image="https://images-na.ssl-images-amazon.com/images/I/71Swqqe7XAL._AC_SX466_.jpg"
-          />
-          <Product
-            id="23445930"
-            title="Amazon Echo (3rd generation) | Smart speaker with Alexa, Charcoal Fabric"
-            price={98.99}
-            rating={5}
-            image="https://media.very.co.uk/i/very/P6LTG_SQ1_0000000071_CHARCOAL_SLf?$300x400_retinamobilex2$"
-          />
-          <Product
-            id="3254354345"
-            title="New Apple iPad Pro (12.9-inch, Wi-Fi, 128GB) - Silver (4th Generation)"
-            price={598.99}
-            rating={4}
-            image="https://images-na.ssl-images-amazon.com/images/I/816ctt5WV5L._AC_SX385_.jpg"
-          /> */}
-
-        {/* <div className="home__row">
-          <Product
-            id="90829332"
-            title="Samsung LC49RG90SSUXEN 49' Curved LED Gaming Monitor - Super Ultra Wide Dual WQHD 5120 x 1440"
-            price={1094.98}
-            rating={4}
-            image="https://images-na.ssl-images-amazon.com/images/I/6125mFrzr6L._AC_SX355_.jpg"
-          />
-        </div> */}
       </div>
     </div>
   );
